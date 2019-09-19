@@ -1,0 +1,132 @@
+Find the country that has oo in the name
+SELECT name FROM world
+  WHERE name LIKE '%oo%'
+
+Find the countries that have three or more a in the name
+SELECT name FROM world
+  WHERE name LIKE '%a%_%a%_%a%
+
+
+Find the countries that start with C and end with ia
+SELECT name FROM world
+  WHERE name LIKE 'C%ia'
+
+Find the countries that have two "o" characters separated by two others.
+SELECT name FROM world
+ WHERE name LIKE '%o__o%'
+
+
+Find the countries that have exactly four characters
+SELECT name FROM world
+ WHERE name LIKE '____'
+
+
+Find the country where the capital is the country plus "City".
+SELECT name
+  FROM world
+ WHERE capital=concat(name,' City')
+
+
+Find the capital and the name where the capital is an extension of name of the country.
+SELECT capital, name FROM world WHERE capital LIKE concat(name, '%') and capital>name
+
+
+Show the name and the extension where the capital is an extension of name of the country.
+SELECT name,replace(capital,name,'') FROM world WHERE capital LIKE concat(name, '%') and capital>name
+
+ 
+
+select name, continent from world where continent in (Select continent from world where name in ('Argentina','Australia') order by name
+
+Show the name and the population of each country in Europe. Show the population as a percentage of the population of Germany.
+select name,concat(round(((population/(SELECT population from world where name='Germany'))*100)),'%')from world where continent='Europe'
+
+Which countries have a GDP greater than every country in Europe? [Give the name only.] (Some countries may have NULL gdp values)
+select name from world where gdp >( select max(gdp) from world where continent='Europe') and gdp is not null
+
+Find the continents where all countries have a population <= 25000000. Then find the names of the countries associated with these continents. Show name, continent and population.
+select name, continent, population from world x where not exists(Select * from world w where w.continent=x.continent and w.population > 25000000)
+SELECT team1,team2,player from goal join game on matchid=id where player like '%Mario%'
+
+
+Show player, teamid, coach, gtime for all goals scored in the first 10 minutes gtime<=10
+select player,teamid,coach,gtime from goal join eteam where id=teamid and gtime<=10
+
+List the the dates of the matches and the name of the team in which 'Fernando Santos' was the team1 coach.
+select mdate,teamname from eteam e join game on team1=e.id where coach='Fernando Santos' and e.id=team1
+
+List the player for every goal scored in a game where the stadium was 'National Stadium, Warsaw'
+select player from game g join goal g1 on g.id=g1.matchid and stadium='National Stadium, Warsaw'
+
+Instead show the name of all players who scored a goal against Germany.
+select DISTINCT player from goal join game on id=matchid WHERE teamid!='GER'AND (team1='GER'or team2='GER')
+
+Show the stadium and the number of goals scored in each stadium.
+select stadium, count(matchid) from game join goal on matchid=id group by stadium
+
+For every match involving 'POL', show the matchid, date and the number of goals scored
+select id,mdate,COUNT(matchid) from game join goal on matchid=id where (team1='POL' or team2='POL') group by id
+
+For every match involving 'POL', show the matchid, date and the number of goals scored.
+select id,mdate,COUNT(matchid) from game join goal on matchid=id where (team1='POL' or team2='POL') group by id,mdate
+
+Show teamname and the total number of goals scored.
+select teamname, count(matchid) from eteam join goal on teamid=id
+
+Show teamname and the total number of goals scored.
+select teamname, count(matchid) from eteam join goal on teamid=id group by teamname
+
+For every match where 'GER' scored, show matchid, match date and the number of goals scored by 'GER'
+select id,mdate,count(*) from game join goal on matchid=id where teamid='GER' group by matchid
+
+
+For every match where 'GER' scored, show matchid, match date and the number of goals scored by 'GER'
+select matchid,mdate,count(*) from game join goal on matchid=id where teamid='GER' group by matchid,mdate
+
+Obtain the cast list for the film 'Alien'
+select name from actor join casting  on actorid=id where movieid=(select id from movie where title='Alien')
+
+List the films in which 'Harrison Ford' has appeared
+select title from movie join casting on id=movieid where actorid=(select id from actor where name='Harrison Ford')
+
+List the films where 'Harrison Ford' has appeared - but not in the starring role. [Note: the ord field of casting gives the position of the actor. If ord=1 then this actor is in the starring role]
+select title from movie join casting on id=movieid where actorid=(select id from actor where name='Harrison Ford') and ord!=1
+
+List the films together with the leading star for all 1962 films.
+select m.title,a.name  from movie m join casting c on c.movieid=m.id join actor a on a.id=c.actorid where m.yr=1962 and c.ord=1
+
+Which were the busiest years for 'Rock Hudson', show the year and the number of movies he made each year for any year in which he made more than 2 movies.
+select yr,count(*) c from movie where director='Rock Hudson' group by director having c>2
+
+
+List the film title and the leading actor for all of the films 'Julie Andrews' played in.
+select m.title,a.name from movie m join casting c on m.id=c.movieid join actor a on c.actorid=a.id where c.movieid in(select movieid from casting where actorid=(select id from actor where name='Julie Andrews')) and c.ord=1
+
+Obtain a list, in alphabetical order, of actors who've had at least 30 starring roles
+select a.name acc from actor a join casting c on c.actorid=a.id where c.ord=1 group by acc having count(*)>= 30 ;
+
+List the films released in the year 1978 ordered by the number of actors in the cast, then by title
+select title from movie join casting on id=movieid where yr=1978 group by title  order by count(*) title 
+
+List the films released in the year 1978 ordered by the number of actors in the cast, then by title.
+select title, count(*) c from movie join casting on id=movieid where yr=1978 group by title  order by  c desc,title 
+
+List all the people who have worked with 'Art Garfunkel'.
+select a.name from actor a join casting c on a.id=c.actorid where c.movieid in(select movieid from casting where actorid=(select id from actor where name='Art Garfunkel')) and a.name!='Art Garfunkel'
+
+Use COALESCE to print the mobile number. Use the number '07986 444 2266' if there is no number given. Show teacher name and mobile number or '07986 444 2266'
+SELECT NAME, COALESCE (mobile,'07986 444 2266') from teacher
+
+Use the COALESCE function and a LEFT JOIN to print the teacher name and department name. Use the string 'None' where there is no department.
+SELECT t.NAME, COALESCE (d.name,'None') from teacher t left outer join dept d on  (t.dept=d.id)
+
+
+Use COUNT and GROUP BY dept.name to show each department and the number of staff. Use a RIGHT JOIN to ensure that the Engineering department is listed.
+select dept.name,count(teacher.name) from teacher right outer join dept on teacher.dept=dept.id group by dept.name
+
+Use CASE to show the name of each teacher followed by 'Sci' if the teacher is in dept 1 or 2 and 'Art' otherwise.
+select NAME, case when dept=1 then  'Sci' when dept=2 then'Sci' else 'Art' end FROM teacher
+
+
+Use CASE to show the name of each teacher followed by 'Sci' if the teacher is in dept 1 or 2, show 'Art' if the teacher's dept is 3 and 'None' otherwise.
+select NAME, case when dept in (1,2) then  'Sci' when dept=3 then'Art' else 'None' end FROM teacher
